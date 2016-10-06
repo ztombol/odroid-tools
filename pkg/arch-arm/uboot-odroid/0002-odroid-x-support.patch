@@ -1,39 +1,104 @@
-From fb927d726489ef96f4af524870e74d32ee846140 Mon Sep 17 00:00:00 2001
-From: Kevin Mihelich <kevin@archlinuxarm.org>
-Date: Fri, 6 Feb 2015 05:40:56 -0700
-Subject: [PATCH 2/2] odroid-x support
+From 8c444601f9101e3161a13d0107cbcd0a21028943 Mon Sep 17 00:00:00 2001
+From: Zoltan Tombol <zoltan.tombol@gmail.com>
+Date: Sun, 2 Oct 2016 13:58:24 +0200
+Subject: [PATCH] odroid: Add X support
 
+This patch does not add a new board to the build system, but simply
+changes the settings of the X2/U2/U3, and thus disables support for
+these boards.
+
+The ODROID-X has only 1 GiB of memory, unlike the X2/U2/U3 which has 2.
+Memory size is set with macros at compile-time, which means that two
+different builds are necessary to boot the X and the X2/U2/U3 boards.
+
+A new `board_type' has been added to `get_board_type()', but the
+detection logic can not distinguish between the X and X2 yet.
+
+This patch is based on Kevin Mihelich's <kevin@archlinuxarm.org> work
+done on Arch Linux ARM. [1]
+
+[1]: https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/586e583ce2a0fd6cd426f3706bb92567bd805b51/alarm/uboot-odroid/0002-odroid-x-support.patch
 ---
- board/samsung/odroid/odroid.c | 2 +-
- include/configs/odroid.h      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ board/samsung/odroid/odroid.c |  8 +++++---
+ include/configs/odroid.h      | 11 ++++-------
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/board/samsung/odroid/odroid.c b/board/samsung/odroid/odroid.c
-index b4cb332..d025d06 100644
+index b4cb332..a13b156 100644
 --- a/board/samsung/odroid/odroid.c
 +++ b/board/samsung/odroid/odroid.c
-@@ -57,7 +57,7 @@ void set_board_type(void)
+@@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ /* Odroid board types */
+ enum {
+ 	ODROID_TYPE_U3,
++	ODROID_TYPE_X,
+ 	ODROID_TYPE_X2,
+ 	ODROID_TYPES,
+ };
+@@ -48,16 +49,17 @@ void set_board_type(void)
+ 	/* XCL205 - needs some latch time */
+ 	sdelay(200000);
+ 
+-	/* Check GPC1 pin2 - LED supplied by XCL205 - X2 only */
++	/* Check GPC1 pin2 - LED supplied by XCL205 - X/X2 only */
+ 	if (readl(XCL205_STATE_GPIO_DAT) & (1 << XCL205_STATE_GPIO_PIN))
+-		gd->board_type = ODROID_TYPE_X2;
++		/* TODO: Distinguish between X and X2. */
++		gd->board_type = ODROID_TYPE_X;
+ 	else
+ 		gd->board_type = ODROID_TYPE_U3;
+ }
  
  const char *get_board_type(void)
  {
 -	const char *board_type[] = {"u3", "x2"};
-+	const char *board_type[] = {"u3", "x"};
++	const char *board_type[] = {"u3", "x", "x2"};
  
  	return board_type[gd->board_type];
  }
 diff --git a/include/configs/odroid.h b/include/configs/odroid.h
-index 306ff07..460c796 100644
+index 6ef3b66..9be3c50 100644
 --- a/include/configs/odroid.h
 +++ b/include/configs/odroid.h
-@@ -23,7 +23,7 @@
+@@ -6,7 +6,7 @@
+  *
+  * Copyright (C) 2016 Zoltan Tombol <zoltan.tombol@gmail.com>
+  *
+- * Configuration settings for the Odroid-X2/U2/U3 (EXYNOS4412) boards.
++ * Configuration settings for the Odroid-X (EXYNOS4412) board.
+  *
+  * SPDX-License-Identifier:	GPL-2.0+
+  */
+@@ -18,9 +18,6 @@
+  *
+  *        After fixing these issues, enable USB and Network boot. See
+  *        the FIXMEs in the Environment section below.
+- *
+- * TODO: Add Odroid-X support. The X uses a variant of the same
+- *       EXYNOS4412 SoC that packages only 1GiB of RAM.
+  */
  
+ /*
+@@ -80,7 +77,7 @@
+ #include <configs/exynos4-common.h>
+ #include <linux/sizes.h>
+ 
+-#define CONFIG_IDENT_STRING	" ODROID-X2/U2/U3"
++#define CONFIG_IDENT_STRING	" ODROID-X"
+ 
+ /* Board ID for Linux: ODROID-X. */
  #define CONFIG_MACH_TYPE	4289
+@@ -120,8 +117,8 @@
+  * Physical Memory Map
+  *--------------------------------------------------------------------*/
  
+-/* A total of 2 GiB memory in 8 banks. */
 -#define CONFIG_NR_DRAM_BANKS	8
++/* A total of 1 GiB memory in 8 banks. */
 +#define CONFIG_NR_DRAM_BANKS	4
- #define CONFIG_SYS_SDRAM_BASE	0x40000000
- #define SDRAM_BANK_SIZE		(256 << 20)	/* 256 MB */
- #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
+ #define SDRAM_BANK_SIZE		SZ_256M
+ 
+ /* Start address of SDRAM. */
 -- 
-2.8.3
+2.10.0
 

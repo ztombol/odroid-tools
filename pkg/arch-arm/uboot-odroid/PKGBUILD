@@ -16,7 +16,7 @@ arch=('armv7h')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
 install="${pkgbase}.install"
-backup=('boot/uEnv.txt')
+backup=('boot/extlinux/extlinux.conf')
 makedepends=('bc' 'dtc')
 _commit=dd9a970aa4accf5d266d334c0f319c674e933027
 source=("ftp://ftp.denx.de/pub/u-boot/u-boot-${pkgver}.tar.bz2"
@@ -24,22 +24,22 @@ source=("ftp://ftp.denx.de/pub/u-boot/u-boot-${pkgver}.tar.bz2"
         "https://github.com/hardkernel/u-boot/raw/${_commit}/sd_fuse/bl2.HardKernel"
         "https://github.com/hardkernel/u-boot/raw/${_commit}/sd_fuse/tzsw.HardKernel"
         'sd_fusing.sh'
-        '0001-arch-linux-arm-modifications.patch'
+        '0001-generic-distro-config-support.patch'
         '0002-odroid-x-support.patch'
-        'uEnv.txt')
+        'extlinux.conf')
 md5sums=('61c628f8034477c946e173ed174efeb4'
          '3ab6d3cc2061bc2590d60320254017c6'
          '841502de02bd42f2898e36c89c260b0f'
          'c38faafa02a6a1ae834457f378c82113'
          '17909ae93a0ae7b4c155234040105035'
-         'afe3b7a5b224e257b2ce7f5af03daa8d'
-         'f4f8c8b6217e6646b9659de642264a3f'
-         'fb5c9ea3108afa298087549f0453b00f')
+         '69a433f3f190a0bf8256e4fdb2bdf4a5'
+         '076a1520581b70f3f0f7541745261751'
+         '6d6d735b10a26ffe4abeee0301485f72')
 
 prepare() {
   cd "u-boot-${pkgver}"
 
-  patch -p1 -i "${srcdir}/0001-arch-linux-arm-modifications.patch"
+  patch -p1 -i "${srcdir}/0001-generic-distro-config-support.patch"
 }
 
 build() {
@@ -70,7 +70,9 @@ package_uboot-odroid() {
   mkdir -p "${pkgdir}/boot"
   cp u-boot-dtb.bin "${pkgdir}/boot/u-boot.bin"
   cp {{bl1,bl2,tzsw}.HardKernel,sd_fusing.sh} "${pkgdir}/boot"
-  cp uEnv.txt "${pkgdir}/boot"
+
+  mkdir -p "${pkgdir}/boot/extlinux"
+  cp extlinux.conf "${pkgdir}/boot/extlinux"
 }
 
 package_uboot-odroid-x() {
@@ -81,5 +83,7 @@ package_uboot-odroid-x() {
   mkdir -p "${pkgdir}/boot"
   cp "u-boot-${pkgver}/u-boot-dtb.bin" "${pkgdir}/boot/u-boot.bin"
   cp {{bl1,bl2,tzsw}.HardKernel,sd_fusing.sh} "${pkgdir}/boot"
-  cp uEnv.txt "${pkgdir}/boot"
+
+  mkdir -p "${pkgdir}/boot/extlinux"
+  cp extlinux.conf "${pkgdir}/boot/extlinux"
 }
