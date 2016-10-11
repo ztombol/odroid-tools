@@ -1,0 +1,402 @@
+# Overwiew
+# ========
+#
+#   Package:    Kernel and header packages for the ODROID-X2/U2/U3
+#   Maintainer: Zoltan Tombol <zoltan dot tombol at gmail>
+#
+#   Based on:
+#     - core/linux (Arch Linux):
+#         Maintainer: Tobias Powalowski <tpowa@archlinux.org>
+#         Maintainer: Thomas Baechler <thomas@archlinux.org>
+#
+#     - core/linux-armv7 (Arch Linux ARM):
+#         Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+#
+#   Thanks to Tobias Jakobi [1] for bringing an up-to-date version of
+#   the Linux kernel to these boards. See the development thread [2] on
+#   the HardKernel forums for more.
+#
+#   [1]: https://github.com/tobiasjakobi
+#   [2]: http://forum.odroid.com/viewtopic.php?f=55&t=3691
+#
+#
+# Customisation
+# =============
+#
+# New packages
+# ------------
+#
+#   Appending an arbitrary string `-<str>' to `pkgbase' allows creating
+#   packages under a different name.
+#
+#       linux-<str>-u3
+#       linux-<str>-x2
+#       linux-<str>-headers
+#
+#   This string is also used as `LOCALVERSION' by modifying `.config'
+#   (see `prepare').
+#
+#   Requires `${pkgbase}.install'.
+#
+#
+# Initial ramdisk
+# ---------------
+#
+#   Initial ramdisk creation can be enabled by uncommenting all sections
+#   denoted by a `CUSTOM(initrd)' comment.
+#
+#   PKGBUILD:
+#       - Add preset file to `source' array.
+#       - Copy and update preset file (see `_package').
+#
+#   INSTALL:
+#       - Generate initial ramdisk after installation.
+#       - Remove generated images after uninstallation.
+#
+#   Requires `${pkgbase}.preset'.
+#
+#
+# Notes
+# =====
+#
+#   A working copy of `${install}' is made in `${install}.pkg' before
+#   updating it for the current build. See `_package' for more.
+#
+
+buildarch=4
+
+# CUSTOM(package): Change package name here!
+#pkgbase=linux        # build stock `-ARCH' kernel
+pkgbase=linux-odroid  # build kernel with a different name
+
+_srcname=linux-odroid           # source directory name
+_kernelname="${pkgbase#linux}"  # used as LOCALVERSION
+_karch=arm                      # architecture the kernel is built for
+
+_desc="HardKernel ODROID-X2/U2/U3 (Exynos 4412 Prime)"
+
+pkgver=4.6.7
+pkgrel=1
+arch=('armv7h')
+url='https://www.kernel.org'
+license=('GPL2')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
+options=('!strip')
+source=("${_srcname}::git+https://github.com/tobiasjakobi/linux-odroid-public#branch=odroid-${pkgver%.*}.y"
+        'config'
+        'config.debug'
+        "${pkgbase}.install"
+        # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+        #"${pkgbase}.preset"
+       )
+sha512sums=('SKIP'
+            '26573380cfa2c95fb9b289589f4830974d00a34c5141c7cb90e83db8472a1c453e7cc4fae106084fa26b4f56466f2a38718cdc44583efa8b42738fe296b6e415'
+            'c0d44051db2871aa3290129221d3a682138820e4cabfab15a5050c54c8827f236101d6327109580922ebaae4378f52d4d0023b1bc41ef499ae577d4688e00965'
+            'cc40946adb6f85747b4cad72f9d9cbcf62b936295fc99382d11aa26196c14c6fd502f145d0f880d390003e69ac24e71d6b9d34433c23e296b9811506474230a0'
+            # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+            #'448637ab463bca0c0a83b4c75da4f4b35e173e76d15ee8e43f056ddb54b3cd6cb7085914d4812c1b47e3a8dc07e52af126822eee2d1c4a4b96109323f2ec97b5'
+           )
+
+prepare() {
+  cd "${_srcname}"
+
+  # Clean source.
+  make mrproper
+
+  # Apply patches.
+  # ... add patches here!
+
+  # Copy kernel configuration.
+  cat "${srcdir}/config" > ./.config
+  #cat "${srcdir}/config.debug" > ./.config
+
+  # Set `LOCALVERSION'.
+  if [ -n "${_kernelname}" ]; then
+    sed -r -e "s/(CONFIG_LOCALVERSION=).*/\1\"${_kernelname}\"/" \
+           -e "s/(CONFIG_LOCALVERSION_AUTO=).*/\1n/" \
+           -i ./.config
+  fi
+
+  # Set `EXTRAVERSION' to `pkgrel'.
+  sed -ri "s/^(EXTRAVERSION =).*/\1 -${pkgrel}/" Makefile
+
+  # Do not run `depmod' on `make install'. We will do it later in `package'.
+  sed -i '2iexit 0' scripts/depmod.sh
+
+  # Get kernel version.
+  make prepare
+
+  # Configure the kernel. Uncomment the method of your choice below.
+  #make menuconfig   # CLI menu for configuration
+  #make nconfig      # new CLI menu for configuration
+  #make xconfig      # X-based configuration
+  #make oldconfig    # using old config from previous kernel version
+  # ... or manually edit `.config'.
+
+  # Clean up and rewrite configuration.
+  #yes '' | make config >/dev/null
+
+  # Backup the configuration (to use with new kernel version).
+  #cp ./.config "${startdir}/${pkgbase}.config.$(date -u +%Y-%m-%dT%H-%M%z)"
+}
+
+build() {
+  cd "${_srcname}"
+
+  make ${MAKEFLAGS} LOCALVERSION= zImage modules exynos4412-odroid{x2,u3}.dtb
+}
+
+# Package kernel and flat device tree blob for the given board.
+#
+# Arguments:
+#   $1 - board type, either `x2' or `u3'
+# Returns:
+#   none
+_package() {
+  pkgdesc="The Linux Kernel and modules - ${_desc}"
+  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
+  optdepends=('crda: to set the correct wireless channels of your country')
+  provides=('kernel26' "linux=${pkgver}")
+  install="${pkgbase}.install"
+  # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+  #backup=("etc/mkinitcpio.d/${pkgbase}.preset")
+
+  cd "${_srcname}"
+
+  # Board type.
+  local -r _board_type="$1"
+
+  # Full version string, e.g. `4.6.4-1-ARCH'.
+  local -r _kernver="$(make LOCALVERSION= kernelrelease)"
+
+  # Major and minor version only, e.g. `4.6'.
+  local _basekernel="${_kernver%%-*}"
+  readonly _basekernel="${_basekernel%.*}"
+
+  # Install modules.
+  mkdir -p "${pkgdir}"/{boot,lib/{modules,firmware}}
+  make LOCALVERSION= INSTALL_MOD_PATH="${pkgdir}" modules_install
+
+  # Install kernel image and device tree blob.
+  mkdir -p "${pkgdir}/boot/dtbs${_kernelname}"
+  cp "arch/${_karch}/boot/dts/exynos4412-odroid${_board_type}.dtb" "${pkgdir}/boot/dtbs${_kernelname}/"
+  cp "arch/${_karch}/boot/zImage" "${pkgdir}/boot/zImage${_kernelname}"
+
+  # Create a working copy of the install script before modifying it.
+  #
+  # NOTE: `true &&' prevents `makepkg' parsing this line and thinking
+  #       that the install script is missing when verifying source
+  #       integrity.
+  #
+  cp -f "${startdir}/${install}" "${startdir}/${install}.pkg"
+  true && install="${install}.pkg"
+
+  # Set correct `depmod' and `mkinitcpio' command for installation.
+  sed -r -e "s/^(KERNEL_NAME=).*/\1${_kernelname}/" \
+         -e "s/^(KERNEL_VERSION=).*/\1${_kernver}/" \
+         -i "${startdir}/${install}"
+
+  # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+  # Install and update `mkinitcpio' preset file.
+  #install -Dm644 "${srcdir}/${pkgbase}.preset" \
+  #               "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+  #if [ -n "${_kernelname}" ]; then
+  #  sed -r -e "1s|'linux.*'|'${pkgbase}'|" \
+  #         -e "s|(ALL_kver=).*|\1\"/boot/zImage${_kernelname}\"|" \
+  #         -e "s|(default_image=).*|\1\"/boot/initramfs-linux${_kernelname}.img\"|" \
+  #         -e "s|(fallback_image=).*|\1\"/boot/initramfs-linux${_kernelname}-fallback.img\"|" \
+  #         -i "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
+  #fi
+
+  # Remove `build' and `source' links.
+  rm -f "${pkgdir}/lib/modules/${_kernver}"/{source,build}
+
+  # Remove `firmware' directory if empty.
+  rm -d "${pkgdir}/lib/firmware"
+
+  # Make room for external modules.
+  ln -s "../extramodules-${_basekernel}${_kernelname:--ARCH}" \
+        "${pkgdir}/lib/modules/${_kernver}/extramodules"
+
+  # Add real version for building modules and running depmod from `post_{install,upgrade}'.
+  mkdir -p "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}"
+  echo "${_kernver}" > "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}/version"
+
+  # Call `depmod' finally.
+  depmod -b "${pkgdir}" -F System.map "${_kernver}"
+
+  # Move module tree: `/lib' -> `/usr/lib'.
+  mkdir -p "${pkgdir}/usr"
+  mv "${pkgdir}/lib" "${pkgdir}/usr/"
+}
+
+_package-headers() {
+  pkgdesc="Header files and scripts for building modules for ${pkbase^} kernel - ${_desc}"
+  provides=("linux-headers=${pkgver}")
+  conflicts=('linux-headers-odroidx' 'linux-headers-odroid')
+  replaces=('linux-headers-odroidx' 'linux-headers-odroid')
+
+  cd "${_srcname}"
+
+  # Full version string, e.g. `4.6.4-1-ARCH'.
+  local -r _kernver="$(make LOCALVERSION= kernelrelease)"
+
+  # Install path to shorten commands.
+  local -r _dest="${pkgdir}/usr/lib/modules/${_kernver}/build"
+
+  install -Dm644 Makefile "${_dest}/Makefile"
+  install -Dm644 kernel/Makefile "${_dest}/kernel/Makefile"
+  install -Dm644 .config "${_dest}/.config"
+
+  # TODO: Is this a generic package to cover all hardware? Because some
+  #       of this does not seem to apply to these boards, e.g. xen,
+  #       pcmcia, scsi, linux/fpga and most of linux/soc.
+  #
+  #       Can we just use `make headers_install'? It installs headers
+  #       based on what is configured in the kernel, which also avoids
+  #       installing unnecessary headers, e.g. gpu DRM, soc, etc.
+  #
+  #           make headers_install ARCH="${_karch}" \
+  #                                INSTALL_HDR_PATH="${_dest}"
+  #
+  mkdir -p "${_dest}/include"
+  local i
+  for i in acpi asm-generic config crypto drm generated keys linux math-emu \
+           media net pcmcia scsi sound trace uapi video xen
+  do
+    cp -a include/${i} "${_dest}/include/"
+  done
+
+  # Copy arch includes for external modules.
+  mkdir -p "${_dest}/arch/${_karch}"
+  cp -a "arch/${_karch}/include" "${_dest}/arch/${_karch}/"
+  mkdir -p "${_dest}/arch/${_karch}/mach-exynos"
+  cp -a "arch/${_karch}/mach-exynos/include" "${_dest}/arch/${_karch}/mach-exynos/"
+  mkdir -p "${_dest}/arch/${_karch}/plat-samsung"
+  cp -a "arch/${_karch}/plat-samsung/include" "${_dest}/arch/${_karch}/plat-samsung/"
+
+  # Copy files necessary for later builds, e.g nvidia and vmware.
+  cp Module.symvers "${_dest}/"
+  cp -a scripts "${_dest}/"
+  # Fix permissions on scripts dir.
+  chmod og-w -R "${_dest}/scripts"
+  # Strip scripts directory.
+  find "${_dest}/scripts" -type f -perm -u+w 2>/dev/null | while read binary ; do
+    case "$(file -bi "${binary}")" in
+      *application/x-sharedlib*)  # Libraries (.so)
+        /usr/bin/strip ${STRIP_SHARED} "${binary}";;
+      *application/x-archive*)    # Libraries (.a)
+        /usr/bin/strip ${STRIP_STATIC} "${binary}";;
+      *application/x-executable*) # Binaries
+        /usr/bin/strip ${STRIP_BINARIES} "${binary}";;
+    esac
+  done
+
+  # This directory will remain empty, but it is still necessary.
+  mkdir -p "${_dest}/.tmp_versions"
+
+  cp "arch/${_karch}/Makefile" "${_dest}/arch/${_karch}/"
+
+  install -Dm644 "arch/${_karch}/kernel/asm-offsets.s" "${_dest}/arch/${_karch}/kernel/asm-offsets.s"
+
+  # Add DocBook makefile.
+  install -Dm644 Documentation/DocBook/Makefile "${_dest}/Documentation/DocBook/Makefile"
+
+  # Add DM headers.
+  mkdir -p "${_dest}/drivers/md"
+  cp drivers/md/*.h "${_dest}/drivers/md/"
+
+  # Add wireless headers.
+  mkdir -p "${_dest}/net/mac80211/"
+  cp net/mac80211/*.h "${_dest}/net/mac80211/"
+
+  # Add DVB headers in reference to:
+  # https://bugs.archlinux.org/task/9912
+  mkdir -p "${_dest}/drivers/media/dvb-core"
+  cp drivers/media/dvb-core/*.h "${_dest}/drivers/media/dvb-core/"
+
+  # FIXME: This does not exist! Something missing from .config?
+  # Add DVB headers in reference to:
+  # https://bugs.archlinux.org/task/11194
+  #mkdir -p "${_dest}/include/config/dvb/"
+  #cp include/config/dvb/*.h "${_dest}/include/config/dvb/"
+
+  # Add DVB headers in reference to:
+  # https://bugs.archlinux.org/task/13146
+  mkdir -p "${_dest}/drivers/media/dvb-frontends/"
+  cp drivers/media/dvb-frontends/lgdt330x.h "${_dest}/drivers/media/dvb-frontends/"
+  mkdir -p "${_dest}/drivers/media/i2c/"
+  cp drivers/media/i2c/msp3400-driver.h "${_dest}/drivers/media/i2c/"
+
+  # Add DVB headers in reference to:
+  # http://bugs.archlinux.org/task/20402
+  mkdir -p "${_dest}/drivers/media/usb/dvb-usb"
+  cp drivers/media/usb/dvb-usb/*.h "${_dest}/drivers/media/usb/dvb-usb/"
+  mkdir -p "${_dest}/drivers/media/dvb-frontends"
+  cp drivers/media/dvb-frontends/*.h "${_dest}/drivers/media/dvb-frontends/"
+  mkdir -p "${_dest}/drivers/media/tuners"
+  cp drivers/media/tuners/*.h "${_dest}/drivers/media/tuners/"
+
+  # TODO: Is this a generic package to cover all hardware? Or does it
+  #       include stuff that does not apply to this board because it
+  #       would be too tedious to remove everything unrelated?
+  #
+  #       For example:
+  #         - ./drivers/gpu/drm (most)
+  #         - ./drivers/infiniband
+  #         - ./drivers/isdn
+  #         - ./drivers/macintosh
+  #         - ./drivers/ata
+  #         - ./drivers/media/pci
+  #         - ./drivers/media/platform (most)
+  #         - ./drivers/net/can (most)
+  #         - ./drivers/net/ethernet (most)
+  #         - anything with an architecture name in it, eg ./drivers/s390/net
+  #         - etc....
+  #
+  # Copy in `Kconfig' files.
+  find . -name 'Kconfig*'                        \
+    \(                                           \
+      -path './arch/*' ! -path './arch/arm/*' -o \
+      -path './arch/arm/mach-*' -o               \
+      -path './arch/arm/plat-*'                  \
+      -prune -o                                  \
+      -exec install -Dm644 {} "${_dest}"/{} \;   \
+    \)
+
+  # Remove files already in the `linux-docs' package.
+  rm -f "${_dest}/Documentation/kbuild/Kconfig.recursion-issue-01"
+  rm -f "${_dest}/Documentation/kbuild/Kconfig.recursion-issue-02"
+  rm -f "${_dest}/Documentation/kbuild/Kconfig.select-break"
+
+  # Fix ownership and permission of files and directories. The `scripts'
+  # directory has been fixed above already.
+  chown -R root:root "${pkgdir}"
+  find "${pkgdir}" -type d -exec chmod 755 {} \;
+  find "${pkgdir}" -type f            \
+    \(                                \
+      -path "${_dest}/scripts/*"      \
+      -prune -o -exec chmod 644 {} \; \
+    \)
+}
+
+_package-u3() {
+  conflicts=('linux-odroidx' 'linux-odroid-x' 'linux-odroid-x-mali'
+             'linux-odroid-x2' 'linux-odroid-u2' 'linux-odroid-u2-mali')
+  replaces=('linux-odroid-u2' 'linux-odroid-u2-mali')
+  _package 'u3'
+}
+
+_package-x2() {
+  conflicts=('linux-odroidx' 'linux-odroid-x' 'linux-odroid-x-mali'
+             'linux-odroid-u2' 'linux-odroid-u2-mali' 'linux-odroid-u3')
+  replaces=('linux-odroidx' 'linux-odroid-x-mali')
+  _package 'x2'
+}
+
+pkgname=("${pkgbase}-u3" "${pkgbase}-x2" "${pkgbase}-headers")
+for _p in ${pkgname[@]}; do
+  eval "package_${_p}() {
+    _package${_p#${pkgbase}}
+  }"
+done

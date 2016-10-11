@@ -1,0 +1,65 @@
+KERNEL_NAME=
+KERNEL_VERSION=
+
+# Update module dependencies.
+_upd_depmod() {
+  echo '>>> Updating module dependencies. Please wait ...'
+  depmod ${KERNEL_VERSION}
+}
+
+# Generate initial ramdisk images.
+_gen_initrd() {
+  echo '>>> Generating initial ramdisk, using mkinitcpio. Please wait...'
+  mkinitcpio -p "linux${KERNEL_NAME}"
+}
+
+# Remove generated ramdisk images.
+_del_initrd() {
+  rm -f "/boot/initramfs-linux${KERNEL_NAME}.img"
+  rm -f "/boot/initramfs-linux${KERNEL_NAME}-fallback.img"
+}
+
+# Arguments:
+#   $1 - new package version
+post_install() {
+  _upd_depmod
+  # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+  #_gen_initrd
+
+  cat << EOF
+-------------------------[ !!! IMPORTANT !!! ]--------------------------
+
+Make sure to configure your bootloader to use the new kernel image. For
+example, if you use an \`extlinux.conf' enabled U-Boot.
+
+    default arch
+
+    label arch
+        linux ../zImage${KERNEL_NAME}
+        fdtdir ../dtbs${KERNEL_NAME}
+        append root=/dev/mmcblk0p1 rootwait rw console=ttySAC1,115200n8
+
+------------------------------------------------------------------------
+EOF
+}
+
+# Arguments:
+#   $1 - new package version
+#   $2 - old package version
+post_upgrade() {
+  if findmnt --fstab -uno SOURCE /boot &>/dev/null && ! mountpoint -q /boot; then
+    echo 'WARNING: /boot appears to be a separate partition but is not mounted.'
+  fi
+
+  _upd_depmod
+  # CUSTOM(initrd): Uncomment for initial ramdisk creation!
+  #_gen_initrd
+}
+
+# Arguments:
+#   $1 - old package version
+post_remove() {
+  true
+  #CUSTOM(initrd): Uncomment to remove initial ramdisk!
+  #_del_initrd
+}

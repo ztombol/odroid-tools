@@ -1,0 +1,12 @@
+# Default `${srcdir}' and `${pkgdir}'.
+src
+pkg
+
+# Built package.
+*.pkg.tar.xz
+
+# Backup of `.config' used in previous builds.
+linux*.config.*
+
+# Working copy of the install script.
+linux*.install.pkg
