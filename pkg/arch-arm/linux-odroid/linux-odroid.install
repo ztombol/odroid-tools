@@ -37,7 +37,7 @@ example, if you use an \`extlinux.conf' enabled U-Boot.
     label arch
         linux ../zImage${KERNEL_NAME}
         fdtdir ../dtbs${KERNEL_NAME}
-        append root=/dev/mmcblk0p1 rootwait rw console=ttySAC1,115200n8
+        append root=/dev/mmcblk0p1 rootwait rw console=ttySAC1,115200n8 smsc95xx.macaddr=02:de:ad:be:ef:ff
 
 ------------------------------------------------------------------------
 EOF
