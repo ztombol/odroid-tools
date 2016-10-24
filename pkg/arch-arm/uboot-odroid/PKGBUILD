@@ -1,9 +1,12 @@
+# Overview
+# ========
 #
-# Package:    U-Boot for ODROID-X/X2/U2/U3
-# Maintainer: Zoltan Tombol <zoltan dot tombol at gmail>
+#   Package:    U-Boot for ODROID-X/X2/U2/U3
+#   Maintainer: Zoltan Tombol <zoltan dot tombol at gmail>
 #
-# Based on:   core/linux-armv7 (Arch Linux ARM)
-#             by Kevin Mihelich <kevin@archlinuxarm.org>
+#   Based on:
+#     - alarm/uboot-odroid (Arch Linux ARM)
+#         Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
 #
 
 buildarch=4
