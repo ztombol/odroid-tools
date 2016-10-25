@@ -75,7 +75,7 @@ _karch=arm                      # architecture the kernel is built for
 
 _desc="HardKernel ODROID-X2/U2/U3 (Exynos 4412 Prime)"
 
-pkgver=4.8.1
+pkgver=4.8.4
 pkgrel=1
 arch=('armv7h')
 url='https://www.kernel.org'
@@ -91,8 +91,8 @@ source=("${_srcname}::git+https://github.com/tobiasjakobi/linux-odroid-public#br
         #"${pkgbase}.preset"
        )
 sha512sums=('SKIP'
-            'e9d45150252bb019dc51a2eacad13b08324ddc0bf3dc9948ce7dcedf9c0ce208daa7d7bbd32bd5349e7cb48420527f04200af9d3f983636e459d927eef46b4d7'
-            '60623835cf0fe6c7ff46b318ab01711d2969ae154df7945a2c31f0e5f7dcfba9b41fb6f4d0e0caf061afc857fcdc4bde17bdc0c8d999fecda46f8679b4603aed'
+            'a478a2fcb7cc40d02f63817004a17ef15b2f6ea4bfaa5105201594f758ae3f2c6aa39ebbdd0d205d2bc9b2e184745a5b3c21280f1c79f4816e03b49626ce7975'
+            'a1e72fd3053493892cd6d4b2eb87597c2bb68d1d18513547c8586bfd2ae255dcfe7dc005498cd54695c46438d0609fd523d17d8c5807b2d0b0c98bbfd104e1e1'
             '659c0b78398dc59a1d04b604780f3fa83018a3193f59daba84f2b10d981c096e0ac8c24a746288bd08a6cfb54a1c5c67f956ca0fb7f9b98809f307d7df3385a5'
             'a07caa8916ff21f67553b8aad9c15d3223facbe823fcf49d1fc57b27a8f1e8d8757edbe31c845819dac0aa98f474f19629dc15ec5216a27a6bee5bb652098179'
             # CUSTOM(initrd): Uncomment for initial ramdisk creation!
