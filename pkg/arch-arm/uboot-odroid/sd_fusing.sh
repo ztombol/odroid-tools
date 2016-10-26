@@ -66,10 +66,12 @@ EOF
 exit_trap() {
   local -ri status="$?"
 
-  if [ "$is_dev_mmc" -eq 1 ] && is_mmc_part_rw "$dev" \
-    && ! set_mmc_part_ro "$dev"
-  then
-    local -ri is_mmc_rw=1
+  if [ "$is_dev_mmc" -eq 1 ]; then
+    if is_mmc_part_rw "$dev" && ! set_mmc_part_ro "$dev"; then
+      local -ri is_mmc_rw=1
+    else
+      local -ri is_mmc_rw=0
+    fi
   fi
 
   echo
@@ -78,9 +80,9 @@ exit_trap() {
 
   if [ "$is_dev_mmc" -eq 1 ]; then
     if [ "$is_mmc_rw" -eq 1 ]; then
-      echo 'boot   : unlocked (RW)'
+      echo '  part   : unlocked (RW)'
     else
-      echo 'boot   : locked (RO)'
+      echo '  part   : locked (RO)'
     fi
   fi
 
@@ -148,7 +150,7 @@ set_mmc_part_ro() {
     echo "Error: Re-enabling read-only access on: \`${dev}'"
     return 1
   fi
-  echo "Read-only access re-enabled on: \`${dev}'"
+  echo "-> Read-only access re-enabled on: \`${dev}'"
 }
 
 

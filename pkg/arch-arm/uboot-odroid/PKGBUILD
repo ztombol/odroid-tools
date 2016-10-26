@@ -14,7 +14,7 @@ buildarch=4
 pkgbase=uboot-odroid
 pkgname=('uboot-odroid' 'uboot-odroid-x')
 pkgver=2016.09.01
-pkgrel=1
+pkgrel=2
 arch=('armv7h')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
@@ -36,7 +36,7 @@ md5sums=('61c628f8034477c946e173ed174efeb4'
          '3ab6d3cc2061bc2590d60320254017c6'
          '841502de02bd42f2898e36c89c260b0f'
          'c38faafa02a6a1ae834457f378c82113'
-         'b5fc576982d98c05156c7b475540fd7e'
+         '15f23e76433b7fb248810881788637ee'
          '69a433f3f190a0bf8256e4fdb2bdf4a5'
          '076a1520581b70f3f0f7541745261751'
          '6d6d735b10a26ffe4abeee0301485f72'
