@@ -98,7 +98,7 @@ exit_trap() {
 #   1 - otherwise
 is_mmc() {
   local dev="$1"
-  [ -d "/sys/block/${dev##*/}/boot0" ]
+  [ -d "/sys/block/${dev##*/}boot0" ]
 }
 
 # Determine whether the given partition of an MMC device is writable.
