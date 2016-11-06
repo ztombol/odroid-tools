@@ -29,15 +29,25 @@ post_install() {
   cat << EOF
 -------------------------[ !!! IMPORTANT !!! ]--------------------------
 
-Make sure to configure your bootloader to use the new kernel image. For
-example, if you use an \`extlinux.conf' enabled U-Boot.
+Make sure to configure your bootloader to use the new kernel image. See
+the example below if you are using an \`extlinux.conf' enabled U-Boot.
 
-    default arch
+    default arch${KERNEL_NAME}-emmc
 
-    label arch
+    # Booting from eMMC module.
+    label arch${KERNEL_NAME}-emmc
+        linux ../zImage${KERNEL_NAME}
+        fdtdir ../dtbs${KERNEL_NAME}
+        append root=/dev/mmcblk1p1 rootwait rw console=ttySAC1,115200n8 smsc95xx.macaddr=02:de:ad:be:ef:ff
+
+    # Booting from SD card.
+    label arch${KERNEL_NAME}-sd
         linux ../zImage${KERNEL_NAME}
         fdtdir ../dtbs${KERNEL_NAME}
         append root=/dev/mmcblk0p1 rootwait rw console=ttySAC1,115200n8 smsc95xx.macaddr=02:de:ad:be:ef:ff
+
+
+Make sure to select the correct configuration for your setup.
 
 ------------------------------------------------------------------------
 EOF
