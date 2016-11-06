@@ -14,12 +14,12 @@ buildarch=4
 pkgbase=uboot-odroid
 pkgname=('uboot-odroid' 'uboot-odroid-x')
 pkgver=2016.09.01
-pkgrel=2
+pkgrel=3
 arch=('armv7h')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
 install="${pkgbase}.install"
-backup=('boot/extlinux/extlinux.conf' 'boot/uEnv.txt')
+backup=('boot/extlinux/extlinux.conf')
 makedepends=('bc' 'dtc')
 _commit=dd9a970aa4accf5d266d334c0f319c674e933027
 source=("ftp://ftp.denx.de/pub/u-boot/u-boot-${pkgver}.tar.bz2"
@@ -29,9 +29,7 @@ source=("ftp://ftp.denx.de/pub/u-boot/u-boot-${pkgver}.tar.bz2"
         'sd_fusing.sh'
         '0001-generic-distro-config-support.patch'
         '0002-odroid-x-support.patch'
-        'extlinux.conf'
-        'boot.cmd'
-        'uEnv.txt')
+        'extlinux.conf')
 sha512sums=('aa503acb1ce4f64a936fbc1292e80c54fe334fcfb1a0da412a755f9a56a24993178ad1a5b8a51f777388d8ce5a62b0626bb5fead503f9b118f7d9f3f1a7c07b7'
             '04bd91f8c46f72d0f6d09b4cec70e9617e82cccee5e6b660e2ec54aa64972169f48b7c81ee2a9f31fa513bf99021de443bebc871a25569eaaf25aaf4da208e8d'
             'e40cfd4ee603ab954dc1db213fe8f2cfc387a2e3224cfab71bade4cbdf64d89558d5300c113e877c173e7561dcc716f098cf976c5b5a725b9d8462543d802e03'
@@ -39,9 +37,7 @@ sha512sums=('aa503acb1ce4f64a936fbc1292e80c54fe334fcfb1a0da412a755f9a56a24993178
             '2428c31fab908e19b8462db3bc516ec43dad61f8a91b8e04b6d3e1ddba42e4ec5732f85c1a32cbd8d49b5b086858064eba11135c43272195c0f64e04f8d79805'
             '6d4b759782ee37b2774189ea789b42d2e628b33b312a9b681e3990c7e2cb1dcb3c2a83914a2373175e4d7947dc3c8fc89ce609e01c50d8e3e99dfcade46af42d'
             '76fbe9ed4abfeb9708420ec6cf94c90b56d9581f9f237588c591ed6496ea0ba87aacddd92af5417cc950bb6dcb1f1d4f78e4957942e828d1efb0d2d274d9428d'
-            'd62530d051ccef62679ca29b351113b095f5e5728cd320d44cb729a4fb03f73d798c7428a4aef532a0f67a5f5cb9ce649b078776cd238b4709ac16e9ef5a3480'
-            '97eb3aaafd84138de5a7fcab862084973b6d6982e2547af97ad899b95544ec70e7615c2bc01c885d487d6add7f4431ac917d975322614470092c740067a30a02'
-            '0dfb139361dfe51ff491c1469607e891ef3e68ef1656d88f4139172d5bdffcbf343a950e197f51b85c484063c9c8b503abe2e244359372d659b70a60d56660af')
+            'd62530d051ccef62679ca29b351113b095f5e5728cd320d44cb729a4fb03f73d798c7428a4aef532a0f67a5f5cb9ce649b078776cd238b4709ac16e9ef5a3480')
 
 prepare() {
   cd "u-boot-${pkgver}"
@@ -67,10 +63,6 @@ build() {
   make distclean
   make odroid_config
   make EXTRAVERSION="-${pkgrel}"
-
-  # Generate loadable script.
-  ./tools/mkimage -A arm -T script -n 'Fallback boot script' \
-                  -d "${srcdir}/boot.cmd" "${srcdir}/boot.scr"
 }
 
 package_uboot-odroid() {
@@ -84,9 +76,6 @@ package_uboot-odroid() {
 
   mkdir -p "${pkgdir}/boot/extlinux"
   cp extlinux.conf "${pkgdir}/boot/extlinux"
-
-  cp boot.scr "${pkgdir}/boot"
-  cp uEnv.txt "${pkgdir}/boot"
 }
 
 package_uboot-odroid-x() {
@@ -100,7 +89,4 @@ package_uboot-odroid-x() {
 
   mkdir -p "${pkgdir}/boot/extlinux"
   cp extlinux.conf "${pkgdir}/boot/extlinux"
-
-  cp boot.scr "${pkgdir}/boot"
-  cp uEnv.txt "${pkgdir}/boot"
 }
