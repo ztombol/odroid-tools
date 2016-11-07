@@ -140,7 +140,7 @@ race condition may be present._
 
 <!-- odroid-tools -->
 [pkg-uboot-odroid]: ../uboot-odroid/
-[extlinux-multi]: ../../../misc/u-boot/config/extlinux.conf
+[extlinux-multi]: ../../../misc/u-boot/extlinux/extlinux.conf
 
 <!-- other -->
 [hk-forum-linux-tj]: http://forum.odroid.com/viewtopic.php?f=55&t=3691
