@@ -59,7 +59,127 @@ replacing deprecated features and testing on boards I don't own. See
 @ztombol_
 
 
-## Boot process
+## Source
+
+Changes over upstream U-Boot.
+
+- **Implement `extlinux.conf` support**
+
+  U-Boot implements a versatile and highly configurable boot environment
+  which is shared between all boards enabling this configuration method.
+  Boards only have to define the memory addresses where various images
+  should be loaded and the devices which should be searched for boot
+  files. Modifying device order, boot prefixes, and customising network
+  setup is supported too. This allows booting more exotic configurations
+  and results in a smaller code base.
+
+- **Refactor and comment header file**
+
+  The boards' [header file][odroid-header] has been carefully refactored
+  and commented to make it easier to understand.
+
+
+## Package
+
+Changes over upstream `uboot-odroid` package.
+
+- **Rewrite `sd_fusing.sh` from scratch**
+
+  The new script introduces proper error detection and reporting, which
+  was faulty and incomplete before, and more polished output. It also
+  reapplies read-only access to the boot partition of eMMC modules after
+  fusing and on error.
+
+- **Do not duplicate fusing logic in install script**
+
+  Use the installed `sd_fusing.sh` script instead of duplicating logic
+  in the install script of the package.
+
+
+The `X` support is based on the upstream [patch][alarm-patch-odroid-x].
+
+References:
+- [Patched U-Boot source][branch-odroid]
+- [X support branch][branch-odroid-x]
+
+
+## Status
+
+The following table summarises the status of each version of the package
+on supported boards.
+
+| version      | X  | X2 | U2 | U3 |
+| ------------ |:--:|:--:|:--:|:--:|
+| 2016.09.01-3 | ?  | ?  | ✓  | ?  |
+| 2016.09.01-2 | ?  | ?  | ✓  | ?  |
+| 2016.09.01-1 | ?  | ?  | ✓  | ?  |
+
+_**Legend:** ✓ - fully working, except upstream issues; ! - partially
+working, see [known issues](#known-issues); × - broken, does not boot;
+? - not tested._
+
+
+### Known issues
+
+Issues affecting upstream.
+
+- **USB and Ethernet is broken in upstream**
+
+  **Boards:** `U2`, most likely all others;
+  **Since:** at least `v2016.07`, possibly earlier
+
+  As of `v2016.07`, and possibly earlier, the USB and Ethernet support
+  is broken in upstream U-Boot. This prevents using TFTP, DHCP or USB
+  mass storage booting, as well as using the network console. The
+  upstream package has the same issue.
+
+
+## Contributing
+
+Contributions are always welcome. Let them be fixes, bug reports,
+testing or new features.
+
+If you are looking for ideas, see the following list of tasks. Please,
+follow the [contribution guidelines][contrib] to make things go smooth.
+
+Upstream U-Boot tasks.
+
+- **Report USB and Network bug to U-Boot**
+
+  These boards are still [actively maintained][odroid-status] in U-Boot.
+  Attempt to bring the USB and Network subsystems up as described in the
+  [documentation][odroid-docs] and capture the console output. Then,
+  report the error upstream.
+
+- **Remove deprecated features**
+
+  Upstream has [deprecated features][deprecated-docs] that need to be
+  removed or replaced before submitting patches. This includes the
+  following tasks.
+
+  - Switching to a new memory test implementation. See the [related
+    documentation][memtest-docs] and comments in the boards' [header
+    file][odroid-header] for more.
+
+  - Removing deprecated I2C macros. See the comments in the boards'
+    [header file][odroid-header] and the warrning during compilation.
+
+    ```
+    ===================== WARNING ======================
+    This board uses CONFIG_DM_I2C_COMPAT. Please remove
+    (possibly in a subsequent patch in your series)
+    before sending patches to the mailing list.
+    ====================================================
+    ```
+
+
+  This is a prerequisite of upstreaming generic distro configuration
+  support.
+
+
+## Documentation
+
+### Boot process
 
 Discovering boot discs and locating boot files is a [standard
 process][distro-docs] implemented by a [common
@@ -75,7 +195,7 @@ eMMC module if attached, and the SD card if not. For a detailed
 description of the boot sequence, see the [ODROID wiki][odroid-wiki].
 
 
-### Local devices
+#### Local devices
 
 First, local devices are searched for boot configuration files in the
 following order.
@@ -159,7 +279,7 @@ module contains only `boot.scr`, then that will be used to boot even if
 the SD card contains `extlinux.conf`.
 
 
-### Network boot
+#### Network boot
 
 <!--
 Next, network options are considered.
@@ -178,123 +298,6 @@ may allow different devices and boot options._
 
 _**Note:** Network boot options are not available as Ethernet is broken
 in upstream. See the list of [known issues](#known-issues) below._
-
-
-## Package
-
-Changes over upstream U-Boot.
-
-- **Implement `extlinux.conf` support**
-
-  U-Boot implements a versatile and highly configurable boot environment
-  which is shared between all boards enabling this configuration method.
-  Boards only have to define the memory addresses where various images
-  should be loaded and the devices which should be searched for boot
-  files. Modifying device order, boot prefixes, and customising network
-  setup is supported too. This allows booting more exotic configurations
-  and results in a smaller code base.
-
-- **Refactor and comment header file**
-
-  The boards' [header file][odroid-header] has been carefully refactored
-  and commented to make it easier to understand.
-
-
-Changes over upstream `uboot-odroid` package.
-
-- **Rewrite `sd_fusing.sh` from scratch**
-
-  The new script introduces proper error detection and reporting, which
-  was faulty and incomplete before, and more polished output. It also
-  reapplies read-only access to the boot partition of eMMC modules after
-  fusing and on error.
-
-- **Do not duplicate fusing logic in install script**
-
-  Use the installed `sd_fusing.sh` script instead of duplicating logic
-  in the install script of the package.
-
-
-The `X` support is based on the upstream [patch][alarm-patch-odroid-x].
-
-References:
-- [Patched U-Boot source][branch-odroid]
-- [X support branch][branch-odroid-x]
-
-
-## Status
-
-The following table summarises the status of each version of the package
-on supported boards.
-
-| version      | X  | X2 | U2 | U3 |
-| ------------ |:--:|:--:|:--:|:--:|
-| 2016.09.01-3 | ?  | ?  | ✓  | ?  |
-| 2016.09.01-2 | ?  | ?  | ✓  | ?  |
-| 2016.09.01-1 | ?  | ?  | ✓  | ?  |
-
-_**Legend:** ✓ - fully working, except upstream issues; ! - partially
-working, see [known issues](#known-issues); × - broken, does not boot;
-? - not tested._
-
-
-### Known issues
-
-Issues affecting upstream.
-
-- **USB and Ethernet is broken in upstream**
-
-  **Boards:** `U2`, most likely all others;
-  **Since:** at least `v2016.07`, possibly earlier
-
-  As of `v2016.07`, and possibly earlier, the USB and Ethernet support
-  is broken in upstream U-Boot. This prevents using TFTP, DHCP or USB
-  mass storage booting, as well as using the network console. The
-  upstream package has the same issue.
-
-
-## Contributing
-
-Contributions are always welcome. Let them be fixes, bug reports,
-testing or new features.
-
-If you are looking for ideas, see the following list of tasks. Please,
-follow the [contribution guidelines][contrib] to make things go smooth.
-
-Upstream U-Boot tasks.
-
-- **Report USB and Network bug to U-Boot**
-
-  These boards are still [actively maintained][odroid-status] in U-Boot.
-  Attempt to bring the USB and Network subsystems up as described in the
-  [documentation][odroid-docs] and capture the console output. Then,
-  report the error upstream.
-
-- **Remove deprecated features**
-
-  Upstream has [deprecated features][deprecated-docs] that need to be
-  removed or replaced before submitting patches. This includes the
-  following tasks.
-  
-  - Switching to a new memory test implementation. See the [related
-    documentation][memtest-docs] and comments in the boards' [header
-    file][odroid-header] for more.
-
-  - Removing deprecated I2C macros. See the comments in the boards'
-    [header file][odroid-header] and the warrning during compilation.
-
-    ```
-    ===================== WARNING ======================
-    This board uses CONFIG_DM_I2C_COMPAT. Please remove
-    (possibly in a subsequent patch in your series)
-    before sending patches to the mailing list.
-    ====================================================
-    ```
-
-
-  This is a prerequisite of upstreaming generic distro configuration
-  support.
-
 
 
 <!-- REFERENCES -->
