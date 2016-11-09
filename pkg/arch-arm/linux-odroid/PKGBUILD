@@ -91,8 +91,8 @@ source=("${_srcname}::git+https://github.com/tobiasjakobi/linux-odroid-public#br
         #"${pkgbase}.preset"
        )
 sha512sums=('SKIP'
-            'a478a2fcb7cc40d02f63817004a17ef15b2f6ea4bfaa5105201594f758ae3f2c6aa39ebbdd0d205d2bc9b2e184745a5b3c21280f1c79f4816e03b49626ce7975'
-            'a1e72fd3053493892cd6d4b2eb87597c2bb68d1d18513547c8586bfd2ae255dcfe7dc005498cd54695c46438d0609fd523d17d8c5807b2d0b0c98bbfd104e1e1'
+            '42946bab637a1611798e22f5425eb28af6c224c5d0567d3cb72d1b455acf716d1497857ea1ce8c80a0ce6518756bba901d1eb5a7da1bbb5860a89528ee1dd8b7'
+            '2d76a8493ec8c2cc0aa8b03e9bc9f69a5323df03deabfe521011d2ff783a8755fb36726c241be6096b78242ab76704f046d73aa7f7361d67ba4bea2d70fe2163'
             '7725cb06edc5256a225b6ff1e870889327f5cb6275a22230c03879b92284e838224ac6ff2be50f72bba4f8d24151d33198b1bc6ed95f04b744d236c7f6e6d736'
             'a07caa8916ff21f67553b8aad9c15d3223facbe823fcf49d1fc57b27a8f1e8d8757edbe31c845819dac0aa98f474f19629dc15ec5216a27a6bee5bb652098179'
             # CUSTOM(initrd): Uncomment for initial ramdisk creation!
