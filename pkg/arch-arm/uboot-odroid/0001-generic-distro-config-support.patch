@@ -1,17 +1,17 @@
 diff --git a/configs/odroid_defconfig b/configs/odroid_defconfig
-index 4e47032..1d009a7 100644
+index f3ddc74..694db72 100644
 --- a/configs/odroid_defconfig
 +++ b/configs/odroid_defconfig
-@@ -48,3 +48,4 @@ CONFIG_G_DNL_MANUFACTURER="Samsung"
+@@ -51,3 +51,4 @@ CONFIG_G_DNL_MANUFACTURER="Samsung"
  CONFIG_G_DNL_VENDOR_NUM=0x04e8
  CONFIG_G_DNL_PRODUCT_NUM=0x6601
  CONFIG_ERRNO_STR=y
 +CONFIG_DISTRO_DEFAULTS=y
 diff --git a/include/configs/odroid.h b/include/configs/odroid.h
-index a28244d..6ef3b66 100644
+index 2828f07..a234aad 100644
 --- a/include/configs/odroid.h
 +++ b/include/configs/odroid.h
-@@ -4,209 +4,332 @@
+@@ -4,207 +4,326 @@
   * Piotr Wilczek <p.wilczek@samsung.com>
   * Przemyslaw Marczak <p.marczak@samsung.com>
   *
@@ -97,11 +97,11 @@ index a28244d..6ef3b66 100644
 +/* Board ID for Linux: ODROID-X. */
 +#define CONFIG_MACH_TYPE	4289
 +
-+
+ 
 +/*----------------------------------------------------------------------
 + * Hardware setup
 + *--------------------------------------------------------------------*/
- 
++
 +/* Disable L2 cache. */
  #define CONFIG_SYS_L2CACHE_OFF
  #ifndef CONFIG_SYS_L2CACHE_OFF
@@ -118,7 +118,7 @@ index a28244d..6ef3b66 100644
 +/* Enable hardware random number generator. */
 +#define CONFIG_EXYNOS_ACE_SHA
 +#define CONFIG_LIB_HW_RAND
-+
+ 
 +/* Enable USB EHCI controller. */
 +#define CONFIG_USB_EHCI
 +#define CONFIG_USB_EHCI_EXYNOS
@@ -128,7 +128,7 @@ index a28244d..6ef3b66 100644
 +#define CONFIG_USB_HOST_ETHER
 +#define CONFIG_USB_ETHER_SMSC95XX
 +
- 
++
 +/*----------------------------------------------------------------------
 + * Physical Memory Map
 + *--------------------------------------------------------------------*/
@@ -165,13 +165,11 @@ index a28244d..6ef3b66 100644
 -/* select serial console configuration */
 -#define CONFIG_SERIAL1
 -#define CONFIG_BAUDRATE			115200
+-
+-/* Console configuration */
 +/* Start address of U-Boot before relocation. */
 +#define CONFIG_SYS_TEXT_BASE	0x43e00000
  
--/* Console configuration */
--#define CONFIG_SYS_CONSOLE_INFO_QUIET
--#define CONFIG_SYS_CONSOLE_IS_IN_ENV
--
 -#define CONFIG_BOOTARGS			"Please use defined boot"
 -#define CONFIG_BOOTCOMMAND		"run autoboot"
 -#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
@@ -219,7 +217,7 @@ index a28244d..6ef3b66 100644
  #define CONFIG_SET_DFU_ALT_INFO
 -#define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 +#define CONFIG_SET_DFU_ALT_BUF_LEN	SZ_1K
-+
+ 
 +/* Partition names */
 +#define PARTS_BOOT	"boot"
 +#define PARTS_ROOT	"root"
@@ -234,7 +232,7 @@ index a28244d..6ef3b66 100644
 +	"exynos4412-odroidx2.dtb fat 0 1; "  \
 +	""PARTS_BOOT" part 0 1; "            \
 +	""PARTS_ROOT" part 0 2; \0"
- 
++
 +/* Value of `dfu_alt_boot' when booting from an eMMC module. */
  #define CONFIG_DFU_ALT_BOOT_EMMC \
 -	"u-boot raw 0x3e 0x800 mmcpart 1;" \
@@ -355,12 +353,6 @@ index a28244d..6ef3b66 100644
 + * Console
 + *--------------------------------------------------------------------*/
 +
-+/* Configure console with settings in the environment. */
-+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-+
-+/* Suppress display of console information at boot. */
-+#define CONFIG_SYS_CONSOLE_INFO_QUIET
-+
 +/* Select and configure serial console. */
 +#define CONFIG_SERIAL1
 +#define CONFIG_BAUDRATE		115200
@@ -470,8 +462,8 @@ index a28244d..6ef3b66 100644
 +
 +/* Define boot targets. */
 +#define BOOT_TARGET_DEVICES(func) \
-+        func(MMC, mmc, 0)    \
-+        func(MMC, mmc, 1)
++        func(MMC, mmc, 0) /* eMMC module */ \
++        func(MMC, mmc, 1) /* SD card */
 +/* FIXME: After fixing USB: Add USB and network boot targets. */
 +/*	func(USB, usb, 0)    \
 +        func(USB, usb, 1)    \

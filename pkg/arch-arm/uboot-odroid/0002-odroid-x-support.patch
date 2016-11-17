@@ -1,4 +1,4 @@
-From 8c444601f9101e3161a13d0107cbcd0a21028943 Mon Sep 17 00:00:00 2001
+From 30e0ba68fb02e25f2c625e53ad710be8e5cd1a14 Mon Sep 17 00:00:00 2001
 From: Zoltan Tombol <zoltan.tombol@gmail.com>
 Date: Sun, 2 Oct 2016 13:58:24 +0200
 Subject: [PATCH] odroid: Add X support
@@ -20,8 +20,8 @@ done on Arch Linux ARM. [1]
 [1]: https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/586e583ce2a0fd6cd426f3706bb92567bd805b51/alarm/uboot-odroid/0002-odroid-x-support.patch
 ---
  board/samsung/odroid/odroid.c |  8 +++++---
- include/configs/odroid.h      | 11 ++++-------
- 2 files changed, 9 insertions(+), 10 deletions(-)
+ include/configs/odroid.h      | 14 +++++---------
+ 2 files changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/board/samsung/odroid/odroid.c b/board/samsung/odroid/odroid.c
 index b4cb332..a13b156 100644
@@ -57,7 +57,7 @@ index b4cb332..a13b156 100644
  	return board_type[gd->board_type];
  }
 diff --git a/include/configs/odroid.h b/include/configs/odroid.h
-index 6ef3b66..9be3c50 100644
+index a234aad..d4b3ba9 100644
 --- a/include/configs/odroid.h
 +++ b/include/configs/odroid.h
 @@ -6,7 +6,7 @@
@@ -99,6 +99,16 @@ index 6ef3b66..9be3c50 100644
  #define SDRAM_BANK_SIZE		SZ_256M
  
  /* Start address of SDRAM. */
+@@ -179,8 +176,7 @@
+ 	"zImage fat 0 1; "                   \
+ 	"Image.itb fat 0 1; "                \
+ 	"uInitrd fat 0 1; "                  \
+-	"exynos4412-odroidu3.dtb fat 0 1; "  \
+-	"exynos4412-odroidx2.dtb fat 0 1; "  \
++	"exynos4412-odroidx.dtb fat 0 1; "   \
+ 	""PARTS_BOOT" part 0 1; "            \
+ 	""PARTS_ROOT" part 0 2; \0"
+ 
 -- 
-2.10.0
+2.10.2
 
