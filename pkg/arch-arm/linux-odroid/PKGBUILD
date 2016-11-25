@@ -75,7 +75,7 @@ _karch=arm                      # architecture the kernel is built for
 
 _desc="HardKernel ODROID-X2/U2/U3 (Exynos 4412 Prime)"
 
-pkgver=4.8.9
+pkgver=4.8.10
 pkgrel=1
 arch=('armv7h')
 url='https://www.kernel.org'

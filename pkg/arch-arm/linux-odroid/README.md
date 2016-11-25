@@ -75,6 +75,7 @@ on supported boards.
 
 | version   | X  | X2 | U2 | U3 |
 | --------- |:--:|:--:|:--:|:--:|
+| 4.8.10-1  | ?  | ?  | !  | ?  |
 | 4.8.9-1   | ?  | ?  | !  | ?  |
 | 4.8.8-1   | ?  | ?  | !  | ?  |
 | 4.8.7-1   | ?  | ?  | !  | ?  |
@@ -96,7 +97,7 @@ Issues affecting upstream.
 
 - **Board hangs on reboot**
 
-  **Boards:** `U2`, likely others;
+  **Boards:** `U2/U3`
   **Since:** at least `4.6.7`, possibly earlier
 
   When rebooting the board hangs and requires a complete power cycle to
