@@ -1,6 +1,6 @@
-From 30e0ba68fb02e25f2c625e53ad710be8e5cd1a14 Mon Sep 17 00:00:00 2001
+From a202687c013d3518e1b2a9ad37ad1300e26d9ad6 Mon Sep 17 00:00:00 2001
 From: Zoltan Tombol <zoltan.tombol@gmail.com>
-Date: Sun, 2 Oct 2016 13:58:24 +0200
+Date: Wed, 11 Jan 2017 23:20:30 +0100
 Subject: [PATCH] odroid: Add X support
 
 This patch does not add a new board to the build system, but simply
@@ -20,11 +20,12 @@ done on Arch Linux ARM. [1]
 [1]: https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/586e583ce2a0fd6cd426f3706bb92567bd805b51/alarm/uboot-odroid/0002-odroid-x-support.patch
 ---
  board/samsung/odroid/odroid.c |  8 +++++---
- include/configs/odroid.h      | 14 +++++---------
- 2 files changed, 10 insertions(+), 12 deletions(-)
+ configs/odroid_defconfig      |  2 +-
+ include/configs/odroid.h      | 12 ++++--------
+ 3 files changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/board/samsung/odroid/odroid.c b/board/samsung/odroid/odroid.c
-index b4cb332..a13b156 100644
+index b4cb33240e..a13b1569d0 100644
 --- a/board/samsung/odroid/odroid.c
 +++ b/board/samsung/odroid/odroid.c
 @@ -29,6 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
@@ -56,8 +57,21 @@ index b4cb332..a13b156 100644
  
  	return board_type[gd->board_type];
  }
+diff --git a/configs/odroid_defconfig b/configs/odroid_defconfig
+index 82dcdddaaa..b1cb518215 100644
+--- a/configs/odroid_defconfig
++++ b/configs/odroid_defconfig
+@@ -2,7 +2,7 @@ CONFIG_ARM=y
+ CONFIG_ARCH_EXYNOS=y
+ CONFIG_ARCH_EXYNOS4=y
+ CONFIG_TARGET_ODROID=y
+-CONFIG_IDENT_STRING=" for ODROID-X2/U2/U3"
++CONFIG_IDENT_STRING=" for ODROID-X"
+ CONFIG_DEFAULT_DEVICE_TREE="exynos4412-odroid"
+ # CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+ CONFIG_FIT=y
 diff --git a/include/configs/odroid.h b/include/configs/odroid.h
-index a234aad..d4b3ba9 100644
+index 59efee8ac4..b9780f2ce0 100644
 --- a/include/configs/odroid.h
 +++ b/include/configs/odroid.h
 @@ -6,7 +6,7 @@
@@ -79,16 +93,7 @@ index a234aad..d4b3ba9 100644
   */
  
  /*
-@@ -80,7 +77,7 @@
- #include <configs/exynos4-common.h>
- #include <linux/sizes.h>
- 
--#define CONFIG_IDENT_STRING	" ODROID-X2/U2/U3"
-+#define CONFIG_IDENT_STRING	" ODROID-X"
- 
- /* Board ID for Linux: ODROID-X. */
- #define CONFIG_MACH_TYPE	4289
-@@ -120,8 +117,8 @@
+@@ -118,8 +115,8 @@
   * Physical Memory Map
   *--------------------------------------------------------------------*/
  
@@ -99,7 +104,7 @@ index a234aad..d4b3ba9 100644
  #define SDRAM_BANK_SIZE		SZ_256M
  
  /* Start address of SDRAM. */
-@@ -179,8 +176,7 @@
+@@ -177,8 +174,7 @@
  	"zImage fat 0 1; "                   \
  	"Image.itb fat 0 1; "                \
  	"uInitrd fat 0 1; "                  \
@@ -110,5 +115,5 @@ index a234aad..d4b3ba9 100644
  	""PARTS_ROOT" part 0 2; \0"
  
 -- 
-2.10.2
+2.11.0
 
