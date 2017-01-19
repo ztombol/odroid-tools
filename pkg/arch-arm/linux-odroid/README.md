@@ -106,6 +106,18 @@ Issues affecting upstream.
   When rebooting the board hangs and requires a complete power cycle to
   be able to boot again. This issue does not affect mainline.
 
+- **HDMI not working**
+
+  **Boards:** `U2`
+  **Since:** at least `4.9.2`, possibly earlier
+
+  There is no console output on HDMI (the monitor reports "No signal").
+  The following message appears in `dmesg`:
+
+  ```
+  [    1.109806] exynos-hdmi 12d00000.hdmi: Failed to get supply 'vdd': -517
+  ```
+
 
 ## Documentation
 
