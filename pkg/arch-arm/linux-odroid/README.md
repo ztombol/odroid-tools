@@ -114,11 +114,6 @@ Issues affecting upstream.
   **Since:** at least `4.9.2`, possibly earlier
 
   There is no console output on HDMI (the monitor reports "No signal").
-  The following message appears in `dmesg`:
-
-  ```
-  [    1.109806] exynos-hdmi 12d00000.hdmi: Failed to get supply 'vdd': -517
-  ```
 
 
 ## Documentation
